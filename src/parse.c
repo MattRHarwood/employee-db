@@ -64,7 +64,7 @@ int validate_db_header(int fd, struct db_header_t **headerOut) {
     return STATUS_ERROR;
   }
 
-  // parse
+  // unpack
   header->magic = ntohl(header->magic);
   header->version = ntohs(header->version);
   header->count = ntohs(header->count);
@@ -97,6 +97,37 @@ int validate_db_header(int fd, struct db_header_t **headerOut) {
   }
 
   *headerOut = header;
+
+  return STATUS_SUCCESS;
+}
+
+int read_employees(int fd, struct db_header_t *headerOut, struct employee_t **employeesOut) {
+  if (fd < 0) {
+    printf("invalid file descriptor\n");
+    return STATUS_ERROR;
+  }
+
+  int count = headerOut->count;
+
+  struct employee_t *employees = calloc(count, sizeof(struct employee_t));
+  if (employees == NULL) {
+    printf("failed to calloc header for validation\n");
+    perror("calloc");
+    return STATUS_ERROR;
+  }
+
+  //cursor is in correct place from validate_db_header
+  if (read(fd, employees, count * sizeof(struct employee_t)) != count * sizeof(struct employee_t)) {
+    perror("read");
+    free(employees);
+    return STATUS_ERROR;
+  }
+
+  for (int i = 0; i < count; i++) {
+    employees[i].hours = ntohs(employees[i].hours);
+  }
+
+  *employeesOut = employees;
 
   return STATUS_SUCCESS;
 }

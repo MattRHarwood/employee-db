@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
   bool newfile = false;
   char *filepath = NULL;
   struct db_header_t *db_header = NULL;
+  struct employee_t *employees = NULL;
 
   while (((ch = getopt(argc, argv, "hnf:")) != STATUS_ERROR)) {
     switch (ch) {
@@ -57,11 +58,16 @@ int main(int argc, char *argv[]) {
       printf("could not open db file\n");
       return STATUS_ERROR;
     }
-    if (validate_db_header(fd, &db_header)) {
-      printf("invalid db header\n");
+    if (validate_db_header(fd, &db_header) != STATUS_SUCCESS) {
+      printf("could not validate db header\n");
       free(db_header);
       return STATUS_ERROR;
-      }
+    }
+    if (read_employees(fd, db_header, &employees) != STATUS_SUCCESS) {
+      printf("could not read employees\n");
+      free(employees);
+    }
+
   }
   else {
     fd = create_db_file(filepath);
@@ -81,5 +87,6 @@ int main(int argc, char *argv[]) {
   output_db_file(fd, db_header);
   close(fd);
   free(db_header);
+  free(employees);
   return STATUS_SUCCESS;
 }
