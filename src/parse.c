@@ -6,11 +6,13 @@
 #include "../include/common.h"
 #include "../include/parse.h"
 
-int output_db_file(int fd, struct db_header_t *headerOut) {
+int output_db_file(int fd, struct db_header_t *headerOut, struct employee_t *employeesOut) {
   if (fd < 0) {
     printf("invalid file descriptor to output\n");
     return STATUS_ERROR;
   }
+
+  int count = headerOut->count;
 
   headerOut->magic = htonl(headerOut->magic);
   headerOut->version = htons(headerOut->version);
@@ -20,6 +22,12 @@ int output_db_file(int fd, struct db_header_t *headerOut) {
   lseek(fd, 0, SEEK_SET);
 
   write(fd, headerOut, sizeof(struct db_header_t));
+
+  for (int i = 0; i < count; i++) {
+    employeesOut[i].hours = htons(employeesOut[i].hours);
+  }
+
+  write(fd, employeesOut, count * sizeof(struct employee_t));
 
   return STATUS_SUCCESS;
 }

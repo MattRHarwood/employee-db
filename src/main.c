@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
       return STATUS_ERROR;
     }
   }
-  output_db_file(fd, db_header);
+  output_db_file(fd, db_header, employees);
   close(fd);
   free(db_header);
   free(employees);
