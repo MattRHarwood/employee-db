@@ -8,10 +8,14 @@
 #include "../include/parse.h"
 
 int output_db_file(int fd, struct db_header_t *header, struct employee_t *employees) {
+
   if (fd < 0) {
     printf("invalid file descriptor to output\n");
     return STATUS_ERROR;
   }
+
+  //shorten file if needed
+  ftruncate(fd, header->filesize);
 
   int count = header->count;
 
@@ -111,6 +115,7 @@ int validate_db_header(int fd, struct db_header_t **headerOut) {
 }
 
 int read_employees(int fd, struct db_header_t *header, struct employee_t **employeesOut) {
+
   if (fd < 0) {
     printf("invalid file descriptor\n");
     return STATUS_ERROR;
@@ -141,7 +146,7 @@ int read_employees(int fd, struct db_header_t *header, struct employee_t **emplo
   return STATUS_SUCCESS;
 }
 
-int add_employee(int fd, struct db_header_t *header, struct employee_t *employees, char *addStr){
+int add_employee(struct db_header_t *header, struct employee_t *employees, char *addStr){
 
   printf("%s\n", addStr);
 
@@ -164,4 +169,15 @@ void list_employees(struct db_header_t *header, struct employee_t *employees){
     printf("\tAddress: %s\n", employees[i].address);
     printf("\tHours: %d\n", employees[i].hours);
   }
+}
+int remove_employee(struct db_header_t *header, struct employee_t *employees, char *todelete){
+
+  int deleted = 0;
+  for (int i=0; i<header->count; i++) {
+    if (strcmp(employees[i].name, "todelete") == 0) {
+      deleted++;
+      memmove(&employees[i], &employees[i + 1], header->count - i - 1 * sizeof(struct employee_t));
+    }
+  }
+  return deleted;
 }

@@ -24,10 +24,11 @@ int main(int argc, char *argv[]) {
   bool listEmployees = false;
   char *filepath = NULL;
   char *employeeDataRaw = NULL;
+  char *removeEmployee = NULL;
   struct db_header_t *db_header = NULL;
   struct employee_t *employees = NULL;
 
-  while (((ch = getopt(argc, argv, "hnf:a:l")) != STATUS_ERROR)) {
+  while (((ch = getopt(argc, argv, "hnf:a:lr:")) != STATUS_ERROR)) {
     switch (ch) {
       case 'h':
         print_usage(argv[0]);
@@ -43,6 +44,9 @@ int main(int argc, char *argv[]) {
         break;
       case 'a':
          employeeDataRaw = optarg;
+        break;
+      case 'r':
+         removeEmployee = optarg;
         break;
       case '?':
         printf("Unknown option -%c\n", ch);
@@ -101,11 +105,19 @@ int main(int argc, char *argv[]) {
     employees = realloc(employees, db_header->count*sizeof(struct employee_t));
     db_header->filesize += sizeof(struct employee_t);
 
-    if (add_employee(fd, db_header, employees, employeeDataRaw) != STATUS_SUCCESS) {
+    if (add_employee(db_header, employees, employeeDataRaw) != STATUS_SUCCESS) {
     printf("couldn't add employee\n");
     return STATUS_ERROR;
     }
   }
+
+  if (removeEmployee) {
+    int deleted = remove_employee(db_header, employees, removeEmployee);
+    db_header->count--;
+    employees = realloc(employees, db_header->count*sizeof(struct employee_t));
+    db_header->filesize -= sizeof(struct employee_t);
+  }
+
   if (listEmployees) {
     list_employees(db_header, employees);
   }
