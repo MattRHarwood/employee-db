@@ -6,6 +6,7 @@ run: clean default
 	./$(TARGET) -n -f test.db
 	./$(TARGET) -f test.db
 	./$(TARGET) -f test.db -a "Trevor Test, 1 Aperture Lane, 80"
+	./$(TARGET) -f test.db -a "Tina Test, 2 Aperture Lane, 85" -l
 
 default: $(TARGET)
 

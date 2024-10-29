@@ -16,3 +16,5 @@
     -n      newfile, option for creating a new database file if it doesnt exist, will be given the name filename
 
     -a      add employee, adds a new employee entry to the database in the format "<name>,<address>,<hours>"
+
+    -l      list employees, lists all employees in a file, will show the state after any other operations

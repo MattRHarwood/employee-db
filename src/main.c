@@ -21,18 +21,22 @@ int main(int argc, char *argv[]) {
 
   int ch = 0;
   bool newfile = false;
+  bool listEmployees = false;
   char *filepath = NULL;
   char *employeeDataRaw = NULL;
   struct db_header_t *db_header = NULL;
   struct employee_t *employees = NULL;
 
-  while (((ch = getopt(argc, argv, "hnf:a:")) != STATUS_ERROR)) {
+  while (((ch = getopt(argc, argv, "hnf:a:l")) != STATUS_ERROR)) {
     switch (ch) {
       case 'h':
         print_usage(argv[0]);
         break;
       case 'n':
         newfile = true;
+        break;
+      case 'l':
+        listEmployees = true;
         break;
       case 'f':
         filepath = optarg;
@@ -102,8 +106,12 @@ int main(int argc, char *argv[]) {
     return STATUS_ERROR;
     }
   }
+  if (listEmployees) {
+    list_employees(db_header, employees);
+  }
 
   output_db_file(fd, db_header, employees);
+
   close(fd);
   free(db_header);
   free(employees);

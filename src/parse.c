@@ -156,3 +156,12 @@ int add_employee(int fd, struct db_header_t *header, struct employee_t *employee
   return STATUS_SUCCESS;
 }
 
+void list_employees(struct db_header_t *header, struct employee_t *employees){
+
+  for (int i=0; i < header->count; i++) {
+    printf("Employee %d\n", i);
+    printf("\tName: %s\n", employees[i].name);
+    printf("\tAddress: %s\n", employees[i].address);
+    printf("\tHours: %d\n", employees[i].hours);
+  }
+}
