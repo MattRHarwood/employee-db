@@ -2,32 +2,33 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../include/common.h"
 #include "../include/parse.h"
 
-int output_db_file(int fd, struct db_header_t *headerOut, struct employee_t *employeesOut) {
+int output_db_file(int fd, struct db_header_t *header, struct employee_t *employees) {
   if (fd < 0) {
     printf("invalid file descriptor to output\n");
     return STATUS_ERROR;
   }
 
-  int count = headerOut->count;
+  int count = header->count;
 
-  headerOut->magic = htonl(headerOut->magic);
-  headerOut->version = htons(headerOut->version);
-  headerOut->count = htons(headerOut->count);
-  headerOut->filesize = htonl(headerOut->filesize);
+  header->magic = htonl(header->magic);
+  header->version = htons(header->version);
+  header->count = htons(header->count);
+  header->filesize = htonl(header->filesize);
 
   lseek(fd, 0, SEEK_SET);
 
-  write(fd, headerOut, sizeof(struct db_header_t));
+  write(fd, header, sizeof(struct db_header_t));
 
   for (int i = 0; i < count; i++) {
-    employeesOut[i].hours = htons(employeesOut[i].hours);
+    employees[i].hours = htons(employees[i].hours);
   }
 
-  write(fd, employeesOut, count * sizeof(struct employee_t));
+  write(fd, employees, count * sizeof(struct employee_t));
 
   return STATUS_SUCCESS;
 }
@@ -109,13 +110,13 @@ int validate_db_header(int fd, struct db_header_t **headerOut) {
   return STATUS_SUCCESS;
 }
 
-int read_employees(int fd, struct db_header_t *headerOut, struct employee_t **employeesOut) {
+int read_employees(int fd, struct db_header_t *header, struct employee_t **employeesOut) {
   if (fd < 0) {
     printf("invalid file descriptor\n");
     return STATUS_ERROR;
   }
 
-  int count = headerOut->count;
+  int count = header->count;
 
   struct employee_t *employees = calloc(count, sizeof(struct employee_t));
   if (employees == NULL) {
@@ -139,3 +140,19 @@ int read_employees(int fd, struct db_header_t *headerOut, struct employee_t **em
 
   return STATUS_SUCCESS;
 }
+
+int add_employee(int fd, struct db_header_t *header, struct employee_t *employees, char *addStr){
+
+  printf("%s\n", addStr);
+
+  char *name = strtok(addStr, ",");
+  char *address = strtok(NULL, ",");
+  char *hours = strtok(NULL, ",");
+
+  strncpy(employees[header->count - 1].name, name, sizeof(employees[header->count - 1].name));
+  strncpy(employees[header->count - 1].address, address, sizeof(employees[header->count - 1].address));
+  employees[header->count - 1].hours = atoi(hours);
+
+  return STATUS_SUCCESS;
+}
+

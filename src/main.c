@@ -22,10 +22,11 @@ int main(int argc, char *argv[]) {
   int ch = 0;
   bool newfile = false;
   char *filepath = NULL;
+  char *employeeDataRaw = NULL;
   struct db_header_t *db_header = NULL;
   struct employee_t *employees = NULL;
 
-  while (((ch = getopt(argc, argv, "hnf:")) != STATUS_ERROR)) {
+  while (((ch = getopt(argc, argv, "hnf:a:")) != STATUS_ERROR)) {
     switch (ch) {
       case 'h':
         print_usage(argv[0]);
@@ -35,6 +36,9 @@ int main(int argc, char *argv[]) {
         break;
       case 'f':
         filepath = optarg;
+        break;
+      case 'a':
+         employeeDataRaw = optarg;
         break;
       case '?':
         printf("Unknown option -%c\n", ch);
@@ -58,16 +62,12 @@ int main(int argc, char *argv[]) {
       printf("could not open db file\n");
       return STATUS_ERROR;
     }
+
     if (validate_db_header(fd, &db_header) != STATUS_SUCCESS) {
       printf("could not validate db header\n");
       free(db_header);
       return STATUS_ERROR;
     }
-    if (read_employees(fd, db_header, &employees) != STATUS_SUCCESS) {
-      printf("could not read employees\n");
-      free(employees);
-    }
-
   }
   else {
     fd = create_db_file(filepath);
@@ -75,6 +75,7 @@ int main(int argc, char *argv[]) {
       printf("could not open db file\n");
       return STATUS_ERROR;
     }
+
     if (create_db_header(fd, &db_header) == STATUS_ERROR) {
       printf("could not create db header\n");
       return STATUS_ERROR;
@@ -84,6 +85,24 @@ int main(int argc, char *argv[]) {
       return STATUS_ERROR;
     }
   }
+
+  if (read_employees(fd, db_header, &employees) != STATUS_SUCCESS) {
+    printf("could not read employees\n");
+    free(employees);
+    return STATUS_ERROR;
+  }
+
+  if (employeeDataRaw) {
+    db_header->count++;
+    employees = realloc(employees, db_header->count*sizeof(struct employee_t));
+    db_header->filesize += sizeof(struct employee_t);
+
+    if (add_employee(fd, db_header, employees, employeeDataRaw) != STATUS_SUCCESS) {
+    printf("couldn't add employee\n");
+    return STATUS_ERROR;
+    }
+  }
+
   output_db_file(fd, db_header, employees);
   close(fd);
   free(db_header);

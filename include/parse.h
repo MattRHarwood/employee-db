@@ -12,14 +12,15 @@ struct db_header_t {
 };
 
 struct employee_t {
-  char name[256];
-  char address[256];
+  char name[64];
+  char address[64];
   unsigned int hours;
 };
 
 int create_db_header(int fd, struct db_header_t **headerOut);
 int validate_db_header(int fd, struct db_header_t **headerOut);
-int read_employees(int fd, struct db_header_t *headerOut, struct employee_t **employeesOut);
-int output_db_file(int fd, struct db_header_t *headerOut, struct employee_t *employeesOut);
+int read_employees(int fd, struct db_header_t *header, struct employee_t **employeesOut);
+int add_employee(int fd, struct db_header_t *header, struct employee_t *employees, char *addStr);
+int output_db_file(int fd, struct db_header_t *header, struct employee_t *employees);
 
 #endif
