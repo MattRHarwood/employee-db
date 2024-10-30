@@ -19,4 +19,6 @@
 
     -l      list employees, lists all employees in a file, will show the state after any other operations.
 
-    -r      remove, remove an entry based on name in the format <name>.
+    -r      remove, remove an entry based on name in the format "<name>".
+
+    -u      update hours, updates an employees hours in the format "<name>,<newHours>".

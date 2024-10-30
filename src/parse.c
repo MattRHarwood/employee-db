@@ -170,14 +170,33 @@ void list_employees(struct db_header_t *header, struct employee_t *employees){
     printf("\tHours: %d\n", employees[i].hours);
   }
 }
-int remove_employee(struct db_header_t *header, struct employee_t *employees, char *todelete){
+
+int remove_employee(struct db_header_t *header, struct employee_t *employees, char *toDelete){
 
   int deleted = 0;
   for (int i=0; i<header->count; i++) {
-    if (strcmp(employees[i].name, "todelete") == 0) {
+    if (strcmp(employees[i].name, toDelete) == 0) {
       deleted++;
+      if (i + 1 >= header->count) {
+        return deleted;
+      }
       memmove(&employees[i], &employees[i + 1], header->count - i - 1 * sizeof(struct employee_t));
     }
   }
   return deleted;
+}
+
+int update_employees(struct db_header_t *header, struct employee_t *employees, char *toUpdate){
+
+  char *name = strtok(toUpdate, ",");
+  int newHours = atoi(strtok(NULL, ","));
+
+  int updated = 0;
+  for (int i=0; i<header->count; i++) {
+    if (strcmp(employees[i].name, name) == 0) {
+      employees[i].hours = newHours;
+      updated++;
+    }
+  }
+  return updated;
 }

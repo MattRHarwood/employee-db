@@ -25,10 +25,13 @@ int main(int argc, char *argv[]) {
   char *filepath = NULL;
   char *employeeDataRaw = NULL;
   char *removeEmployee = NULL;
+  int deleted = 0;
+  char *updateEmployee = NULL;
+  int updated = 0;
   struct db_header_t *db_header = NULL;
   struct employee_t *employees = NULL;
 
-  while (((ch = getopt(argc, argv, "hnf:a:lr:")) != STATUS_ERROR)) {
+  while (((ch = getopt(argc, argv, "hnf:a:lr:u:")) != STATUS_ERROR)) {
     switch (ch) {
       case 'h':
         print_usage(argv[0]);
@@ -47,6 +50,9 @@ int main(int argc, char *argv[]) {
         break;
       case 'r':
          removeEmployee = optarg;
+        break;
+      case 'u':
+         updateEmployee = optarg;
         break;
       case '?':
         printf("Unknown option -%c\n", ch);
@@ -103,6 +109,13 @@ int main(int argc, char *argv[]) {
   if (employeeDataRaw) {
     db_header->count++;
     employees = realloc(employees, db_header->count*sizeof(struct employee_t));
+    if (employees == NULL) {
+      printf("failed to realloc new employees\n");
+      perror("realloc");
+      close(fd);
+      free(db_header);
+      return STATUS_ERROR;
+    }
     db_header->filesize += sizeof(struct employee_t);
 
     if (add_employee(db_header, employees, employeeDataRaw) != STATUS_SUCCESS) {
@@ -112,10 +125,23 @@ int main(int argc, char *argv[]) {
   }
 
   if (removeEmployee) {
-    int deleted = remove_employee(db_header, employees, removeEmployee);
+    deleted = remove_employee(db_header, employees, removeEmployee);
     db_header->count--;
     employees = realloc(employees, db_header->count*sizeof(struct employee_t));
+    if (employees == NULL) {
+      printf("failed to realloc new employees\n");
+      perror("realloc");
+      close(fd);
+      free(db_header);
+      return STATUS_ERROR;
+    }
     db_header->filesize -= sizeof(struct employee_t);
+  }
+
+  if (updateEmployee) {
+    updated = update_employees(db_header, employees, updateEmployee);
+    printf("Updated %d employess\n", updated);
+    
   }
 
   if (listEmployees) {
