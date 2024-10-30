@@ -9,7 +9,7 @@
 
 void print_usage(char *filename) {
 
-  printf("usage: %s [-h help] [-n newfile] [-f filename]\n", filename);
+  printf("usage: %s [-f filename] [-n newfile] [-a add] [-r remove] [-u update hours] [-h help]\n", filename);
 }
 
 int main(int argc, char *argv[]) {

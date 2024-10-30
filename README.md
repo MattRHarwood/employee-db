@@ -2,7 +2,7 @@
 
 # Synopisis
 
-    usage: dbview [-h help] [-n newfile] [-f filename] [-a add employee]
+    usage: dbview [-f filename] [-n newfile] [-a add] [-r remove] [-u update hours] [-h help]
 
 # DESCRIPTION
     Manage an employee database via the `dbview` command.
